@@ -6,7 +6,7 @@ require('dotenv').config();
 const uri = `mongodb+srv://${process.env.MONGODB_DB_USER}:${process.env.MONGODB_DB_PWD}@experiments-cluster.fvvtm.mongodb.net/?retryWrites=true&w=majority&appName=experiments-cluster`;
 const client = new MongoClient(uri);
 
-async function saveData(data) {
+async function saveBundle(data) {
   try {
     await client.connect();
     
@@ -26,9 +26,15 @@ async function saveData(data) {
 export default async function handler(req, res) {
   // Check for the HTTP method if needed, e.g., if it's a POST or GET request
   if (req.method === 'POST') {
-    let postBody = req.body;
+    const { title, urls, context } = req.body;
+    const newBundle = {
+      title,
+      urls,
+      context,
+      created_date: new Date(), // Add the created_date timestamp
+    };
     
-    saveData(postBody);
+    saveBundle(newBundle);
 
     // Return a JSON response with ok: true
     res.status(200).json({ ok: true });
