@@ -1,135 +1,78 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import Link from "next/link";
 import Layout from '../components/Layout';
+import "bootstrap/dist/css/bootstrap.min.css";
 
-function debounce(func, delay) {
-  let timeout;
-  return (...args) => {
-    clearTimeout(timeout);
-    timeout = setTimeout(() => func(...args), delay);
-  };
-}
+const Home = () => {
+  const [bundles, setBundles] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-const PodcastResearchCollectionPage = () => {
-  const [urls, setUrls] = useState([{ value: "", isValid: true }]);
-  const [context, setContext] = useState("");
-
-  // const urlRegex = /^(https?:\/\/)?((([a-zA-Z0-9_-]+\.)+[a-zA-Z]{2,})|localhost)(:[0-9]{1,5})?(\/[a-zA-Z0-9@:%._\+~#=]*)*(\?[a-zA-Z0-9@:%_\+.~#&//=]*)?(#[a-zA-Z0-9_-]*)?$/;;
-  const urlRegex = new RegExp('^(https?:\\/\\/)?'+ // protocol
-    '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+ // domain name
-    '((\\d{1,3}\\.){3}\\d{1,3}))'+ // OR ip (v4) address
-    '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+ // port and path
-    '(\\?[;&a-z\\d%_.~+=-]*)?'+ // query string
-    '(\\#[-a-z\\d_]*)?$','i'); // fragment locator
-
-  const validateUrl = debounce((index, value) => {
-    const newUrls = [...urls];
-    newUrls[index].isValid = urlRegex.test(value);
-    setUrls(newUrls);
-  }, 300); // Debounce delay of 300ms
-
-  const handleUrlChange = (index, event) => {
-    const newUrls = [...urls];
-    newUrls[index].value = event.target.value;
-    setUrls(newUrls);
-    
-    validateUrl(index, event.target.value);
-  };
-
-  const addUrlField = () => {
-    setUrls([...urls, { value: "", isValid: true }]);
-  };
-
-  const removeUrlField = (index) => {
-    const newUrls = urls.filter((_, i) => i !== index);
-    setUrls(newUrls);
-  };
-
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-
-    // Check if all URLs are valid before submitting
-    const allValid = urls.every((url) => url.isValid && url.value !== "");
-    if (!allValid) {
-      alert("Please correct invalid URLs before submitting.");
-      return;
+  useEffect(() => {
+    async function fetchBundles() {
+      try {
+        const response = await fetch("/api/bundles");
+        const data = await response.json();
+        setBundles(data.bundles);
+      } catch (error) {
+        console.error("Error fetching bundles:", error);
+      } finally {
+        setLoading(false);
+      }
     }
-
-    const data = {
-      urls: urls.map((url) => url.value),
-      context,
-    };
-
-    const response = await fetch("/api/save-research-inputs", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    });
-
-    if (response.ok) {
-      console.log("Data submitted successfully");
-    } else {
-      console.error("Error submitting data");
-    }
-  };
+    fetchBundles();
+  }, []);
 
   return (
     <div className="container mt-5">
-      <div className="card shadow-lg">
-        <div className="card-body">
-          <h3 className="card-title text-center mb-4">Submit URLs and Context</h3>
-          <form onSubmit={handleSubmit}>
-            {urls.map((url, index) => (
-              <div key={index} className="input-group mb-3">
-                <input
-                  type="url"
-                  value={url.value}
-                  onChange={(event) => handleUrlChange(index, event)}
-                  className={`form-control ${!url.isValid ? "is-invalid" : ""}`}
-                  placeholder={`Enter URL ${index + 1}`}
-                  required
-                />
-                <button
-                  type="button"
-                  className="btn btn-outline-danger"
-                  onClick={() => removeUrlField(index)}
-                  disabled={urls.length === 1}
+      <h1 className="text-center mb-4">PodPrep AI</h1>
+      <h5 className="text-center text-muted mb-5">
+        Create a research bundle for an upcoming podcast interview
+      </h5>
+
+      <div className="d-flex justify-content-center">
+        <div className="w-100" style={{ maxWidth: "600px" }}>
+          <div className="d-flex justify-content-end mb-4">
+            <Link href="/create-research-bundle" className="btn btn-primary" passHref>
+              + Create New Research Bundle
+            </Link>
+          </div>
+
+          {loading ? (
+            <div className="text-center">Loading bundles...</div>
+          ) : bundles.length === 0 ? (
+            <div className="text-center text-muted">No research bundles created yet.</div>
+          ) : (
+            <div className="list-group">
+              {bundles.map((bundle) => (
+                <Link
+                  href={`/bundle/${bundle._id}`}
+                  key={bundle._id}
+                  passHref
+                  className="list-group-item list-group-item-action mb-3 shadow-sm rounded border-0 p-3 d-flex justify-content-between align-items-center"
                 >
-                  <i className="bi bi-trash"></i>
-                </button>
-              </div>
-            ))}
-            <button
-              type="button"
-              className="btn btn-outline-primary w-100 mb-3"
-              onClick={addUrlField}
-            >
-              <i className="bi bi-plus-circle"></i> Add Another URL
-            </button>
-            <div className="mb-3">
-              <textarea
-                value={context}
-                onChange={(e) => setContext(e.target.value)}
-                placeholder="Additional context"
-                rows="4"
-                className="form-control"
-              />
+                  <div className="fw-bold">{bundle.title}</div>
+                  <span
+                    className={`badge ${
+                      bundle.processed ? "bg-success" : "bg-warning text-dark"
+                    }`}
+                  >
+                    {bundle.processed ? "Processed" : "Processing"}
+                  </span>
+                </Link>
+              ))}
             </div>
-            <button type="submit" className="btn btn-primary w-100">
-              <i className="bi bi-send"></i> Submit
-            </button>
-          </form>
+          )}
         </div>
       </div>
     </div>
   );
 }
 
+
 export default function Index() {
   return (
-    <Layout title="Create Research Collection">
-      <PodcastResearchCollectionPage />
+    <Layout title="PodPrep AI">
+      <Home />
     </Layout>
   );
 }
