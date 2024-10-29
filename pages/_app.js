@@ -1,5 +1,13 @@
-import "@/styles/globals.css";
+import React, { useEffect } from 'react';
+import 'bootstrap/dist/css/bootstrap.css'; // Add this line
+import "../styles/globals.css";
 
-export default function App({ Component, pageProps }) {
+function MyApp({ Component, pageProps }) {
+  useEffect(() => {
+    import('bootstrap/dist/js/bootstrap');
+  }, []);
+  
   return <Component {...pageProps} />;
 }
+
+export default MyApp;
