@@ -1,12 +1,17 @@
 const axios = require('axios');
-const { OpenAI } = require('@langchain/openai');
 import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters";
-import { ChatOpenAI } from "@langchain/openai";
+import { OpenAIEmbeddings, ChatOpenAI } from "@langchain/openai";
 const { saveTextChunks } = require('../../util/save-text-chunks');
 
+// Used to help with parsing content from websites
 const llm = new ChatOpenAI({
   model: "gpt-4o-mini",
   temperature: 0
+});
+
+// Initialize the OpenAI embedding model
+const embeddings = new OpenAIEmbeddings({
+  modelName: "text-embedding-ada-002"
 });
 
 // Processors for different URL types
@@ -19,7 +24,11 @@ async function processTextURL(url) {
     const splitter = new RecursiveCharacterTextSplitter({ chunkSize: 500, chunkOverlap: 50 });
     const chunks = await splitter.createDocuments([content]);
 
-    console.log(chunks);
+    // Generate embeddings for each of the text chunks
+    for(let i = 0; i < chunks.length; i++) {
+      const embedding = await embeddings.embedQuery(chunks[i].pageContent);
+      chunks[i].embedding = embedding;
+    }
 
     return chunks;
   } catch (error) {
@@ -96,12 +105,12 @@ async function processResearchBundle(bundleId, urls) {
     // Save each chunk from the URL and associate with the bundle ID
     for(let i = 0; i < documents.length; i++) {
       let text = documents[i].pageContent;
-      console.log(text);
-
+  
       textChunks.push({
         bundleId: bundleId,
         url: url,
-        text: text
+        text: text,
+        embedding: documents[i].embedding
       });
     }
 

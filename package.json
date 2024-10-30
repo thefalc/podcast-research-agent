@@ -10,10 +10,12 @@
   },
   "dependencies": {
     "@confluentinc/kafka-javascript": "^0.3.0",
+    "@langchain/community": "^0.3.11",
     "@langchain/core": "^0.3.16",
     "@langchain/textsplitters": "^0.1.0",
     "axios": "^1.7.7",
     "bootstrap": "^5.3.3",
+    "cheerio": "^1.0.0",
     "dotenv": "^16.4.5",
     "langchain": "^0.3.5",
     "mongodb": "^6.10.0",

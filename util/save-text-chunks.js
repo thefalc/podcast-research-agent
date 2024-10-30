@@ -3,7 +3,7 @@ import fs from 'fs';
 
 // Configuration for for Kafka
 const config = readConfig(process.cwd() + "/client.properties");
-const topic = "podprep-text-chunks";
+const topic = "podprep-text-chunks-1";
 
 // Reads the Kafka config file
 function readConfig(fileName) {
