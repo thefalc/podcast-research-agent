@@ -31,6 +31,7 @@ export default async function handler(req, res) {
       title,
       urls,
       context,
+      processed: false,
       created_date: new Date(), // Add the created_date timestamp
     };
     

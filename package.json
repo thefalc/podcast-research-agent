@@ -9,8 +9,13 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@confluentinc/kafka-javascript": "^0.3.0",
+    "@langchain/core": "^0.3.16",
+    "@langchain/textsplitters": "^0.1.0",
+    "axios": "^1.7.7",
     "bootstrap": "^5.3.3",
     "dotenv": "^16.4.5",
+    "langchain": "^0.3.5",
     "mongodb": "^6.10.0",
     "next": "15.0.2",
     "react": "19.0.0-rc-02c0e824-20241028",
