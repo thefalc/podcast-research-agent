@@ -1,7 +1,27 @@
-const axios = require('axios');
-import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters";
-import { OpenAIEmbeddings, ChatOpenAI } from "@langchain/openai";
-const { saveTextChunks } = require('../../util/save-text-chunks');
+const axios = require("axios");
+const { RecursiveCharacterTextSplitter } = require("@langchain/textsplitters");
+const { OpenAIEmbeddings, ChatOpenAI } = require("@langchain/openai");
+const { saveTextChunks } = require("./util/save-text-chunks");
+const dotenv = require('dotenv');
+const express = require('express');
+
+const router = express.Router();
+
+// Load environment variables from .env file
+dotenv.config();
+
+// API endpoint called by Confluent
+router.post('/', async (req, res) => {
+  await handler(req, res);
+});
+
+// For local testing
+router.get('/', async (req, res) => {
+  await handler(req, res);
+});
+
+module.exports = router;
+// export default router;
 
 // Used to help with parsing content from websites
 const llm = new ChatOpenAI({
@@ -118,15 +138,19 @@ async function processResearchBundle(bundleId, urls) {
   }
 }
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   // Check for the HTTP method if needed, e.g., if it's a POST or GET request
   if (req.method === 'POST') {
     let body = req.body;
 
-    const urls = body.fullDocument.urls;
-    const bundleId = body.fullDocument._id["$oid"];
-  
-    processResearchBundle(bundleId, urls);
+    console.log(body);
+
+    if (body.hasOwnProperty("fullDocument")) {
+      const urls = body.fullDocument.urls;
+      const bundleId = body.fullDocument._id["$oid"];
+    
+      processResearchBundle(bundleId, urls);
+    }    
 
     // Return a JSON response with ok: true
     res.status(200).json({ ok: true });

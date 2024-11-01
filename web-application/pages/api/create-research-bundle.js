@@ -1,5 +1,8 @@
 const { MongoClient } = require("mongodb");
 
+// TODO: need to add the name of the guest and the company they work for
+// TODO: need to figure out a way to determine when a given research bundle has been processed
+
 require('dotenv').config();
 
 // Replace with your actual MongoDB connection string and database name
