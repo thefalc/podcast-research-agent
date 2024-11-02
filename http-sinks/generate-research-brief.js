@@ -9,8 +9,7 @@ const router = express.Router();
 // Load environment variables from .env file
 dotenv.config();
 
-// Replace with your actual MongoDB connection string and database name
-const uri = `mongodb+srv://${process.env.MONGODB_DB_USER}:${process.env.MONGODB_DB_PWD}@experiments-cluster.fvvtm.mongodb.net/?retryWrites=true&w=majority&appName=experiments-cluster`;
+const uri = process.env.MONGODB_URI;
 const client = new MongoClient(uri);
 
 const model = new ChatOpenAI({ model: "gpt-4" });
@@ -126,7 +125,7 @@ async function updateResearchBundle(bundleId, researchBriefText) {
   }
 }
 
-async function getResearchContext(bundleId) {
+async function buildResearchBrief(bundleId) {
   let researchBundle = await getBundle(bundleId);
   console.log(researchBundle);
   let relevantChunks = await getRelevantChunks(bundleId, researchBundle.context);
@@ -189,7 +188,7 @@ async function handler(req, res) {
     const bundleId = '6724f91a1d41094dff56dcaf';
 
     console.log(bundleId);
-    let context = await getResearchContext(bundleId);
+    buildResearchBrief(bundleId);
 
     res.status(200).json({ ok: true });
   } else {

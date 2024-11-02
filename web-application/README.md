@@ -9,8 +9,7 @@ is passed to a LLM to generate a podcast brief and set of suggested questions.
 ## Configuring the application
 
 You need to create a **.env** file with the following values:
-* MONGODB_DB_USER
-* MONGODB_DB_PWD
+* MONGODB_URI
 
 ## Running the application
 

@@ -22,8 +22,7 @@ The research brief is saved to MongoDB and will now be available in the web appl
 ## Configuring the application
 
 You need to create a **.env** file with the following values:
-* MONGODB_DB_USER
-* MONGODB_DB_PWD
+* MONGODB_URI
 * OPENAI_API_KEY
 * LANGCHAIN_TRACING_V2
 * LANGCHAIN_API_KEY

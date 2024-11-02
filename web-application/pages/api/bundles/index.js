@@ -2,8 +2,8 @@ const { MongoClient } = require("mongodb");
 
 require('dotenv').config();
 
-// Replace with your actual MongoDB connection string and database name
-const uri = `mongodb+srv://${process.env.MONGODB_DB_USER}:${process.env.MONGODB_DB_PWD}@experiments-cluster.fvvtm.mongodb.net/?retryWrites=true&w=majority&appName=experiments-cluster`;
+const uri = process.env.MONGODB_URI;
+console.log(uri);
 const client = new MongoClient(uri);
 
 async function getBundles() {

@@ -1,12 +1,8 @@
 const { MongoClient } = require("mongodb");
 
-// TODO: need to add the name of the guest and the company they work for
-// TODO: need to figure out a way to determine when a given research bundle has been processed
-
 require('dotenv').config();
 
-// Replace with your actual MongoDB connection string and database name
-const uri = `mongodb+srv://${process.env.MONGODB_DB_USER}:${process.env.MONGODB_DB_PWD}@experiments-cluster.fvvtm.mongodb.net/?retryWrites=true&w=majority&appName=experiments-cluster`;
+const uri = process.env.MONGODB_URI;//`mongodb+srv://${process.env.MONGODB_DB_USER}:${process.env.MONGODB_DB_PWD}@experiments-cluster.fvvtm.mongodb.net/?retryWrites=true&w=majority&appName=experiments-cluster`;
 const client = new MongoClient(uri);
 
 async function saveBundle(data) {

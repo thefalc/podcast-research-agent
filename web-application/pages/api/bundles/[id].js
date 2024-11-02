@@ -1,6 +1,6 @@
 import { MongoClient, ObjectId } from "mongodb";
 
-const uri = `mongodb+srv://${process.env.MONGODB_DB_USER}:${process.env.MONGODB_DB_PWD}@experiments-cluster.fvvtm.mongodb.net/?retryWrites=true&w=majority&appName=experiments-cluster`;
+const uri = process.env.MONGODB_URI;
 
 export default async function handler(req, res) {
   if (req.method !== "GET") {
