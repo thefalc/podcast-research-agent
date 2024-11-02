@@ -12,6 +12,7 @@ dotenv.config();
 
 // API endpoint called by Confluent
 router.post('/', async (req, res) => {
+  console.log(req.body);
   await handler(req, res);
 });
 
@@ -21,7 +22,6 @@ router.get('/', async (req, res) => {
 });
 
 module.exports = router;
-// export default router;
 
 // Used to help with parsing content from websites
 const llm = new ChatOpenAI({
@@ -139,10 +139,12 @@ async function processResearchBundle(bundleId, urls) {
 }
 
 async function handler(req, res) {
+  console.log('handler called');
   // Check for the HTTP method if needed, e.g., if it's a POST or GET request
   if (req.method === 'POST') {
     let body = req.body;
 
+    // console.dir(req);
     console.log(body);
 
     if (body.hasOwnProperty("fullDocument")) {
