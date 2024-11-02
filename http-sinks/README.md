@@ -35,5 +35,6 @@ As well as a **client.properties** file that contains properties to connect to C
 From the your terminal, navigate to the **/http-sinks** directory and enter the following command:
 
 ```shell
+npm install
 node app.js
 ```

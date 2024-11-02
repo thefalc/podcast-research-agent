@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useRouter } from "next/router";
-import Layout from '../components/Layout';
+import Layout from "../components/Layout";
 
 function debounce(func, delay) {
   let timeout;
@@ -12,7 +12,9 @@ function debounce(func, delay) {
 
 const CreateResearchBundlePage = () => {
   const router = useRouter(); 
-  const [title, setTitle] = useState("");
+  const [guestName, setGuestName] = useState("");
+  const [company, setCompany] = useState("");
+  const [topic, setTopic] = useState("");
   const [urls, setUrls] = useState([{ value: "", isValid: true }]);
   const [context, setContext] = useState("");
 
@@ -57,7 +59,9 @@ const CreateResearchBundlePage = () => {
     }
 
     const data = {
-      title,
+      guestName,
+      company,
+      topic,
       urls: urls.map((url) => url.value),
       context,
     };
@@ -85,16 +89,43 @@ const CreateResearchBundlePage = () => {
         <div className="card-body">
           <h3 className="card-title text-center mb-4">Create a Research Bundle</h3>
           <form onSubmit={handleSubmit}>
-            <div className="mb-3">
-              <input
-                type="text"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                className="form-control"
-                id="title"
-                placeholder="Enter a title for the research bundle"
-                required
-              />
+            <div className="row mb-3">
+              <div className="col-md-4">
+                <label htmlFor="guestName" className="form-label">Guest Name</label>
+                <input
+                  type="text"
+                  value={guestName}
+                  onChange={(e) => setGuestName(e.target.value)}
+                  className="form-control"
+                  id="guestName"
+                  placeholder="Enter guest's name"
+                  required
+                />
+              </div>
+              <div className="col-md-4">
+                <label htmlFor="company" className="form-label">Company</label>
+                <input
+                  type="text"
+                  value={company}
+                  onChange={(e) => setCompany(e.target.value)}
+                  className="form-control"
+                  id="company"
+                  placeholder="Enter company name"
+                  required
+                />
+              </div>
+              <div className="col-md-4">
+                <label htmlFor="topic" className="form-label">Topic</label>
+                <input
+                  type="text"
+                  value={topic}
+                  onChange={(e) => setTopic(e.target.value)}
+                  className="form-control"
+                  id="topic"
+                  placeholder="Enter the topic"
+                  required
+                />
+              </div>
             </div>
             <div className="mb-3">
               <textarea

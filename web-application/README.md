@@ -17,5 +17,6 @@ You need to create a **.env** file with the following values:
 From the your terminal, navigate to the **/web-application** directory and enter the following command:
 
 ```shell
+npm install
 npm run dev
 ```

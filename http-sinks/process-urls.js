@@ -160,12 +160,14 @@ async function handler(req, res) {
         fullDocument: {
             urls: ["https://www.skyflow.com/post/cfpb-finalized-rule-1033-to-protect-data-privacy-what-to-know"],
             context: "ertewrt",
-            _id: { "$oid": "67227672cbbf3fc15cb7f73f" },
+            _id: { "$oid": "6724f91a1d41094dff56dcaf" },
             created_date: 1730311794080,
-            title: "egterte"
+            topic: "CFPB Finalized Rule 1033",
+            guestName: "Chih-Hsuan Wu",
+            company: "Skyflow"
         },
         ns: { coll: "research_bundles", db: "podpre_ai" },
-        documentKey: { _id: { "$oid": "67227672cbbf3fc15cb7f73f" } },
+        documentKey: { _id: { "$oid": "6724f91a1d41094dff56dcaf" } },
         operationType: "insert",
         wallTime: 1730311795085,
         _id: {

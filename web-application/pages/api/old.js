@@ -17,7 +17,7 @@ async function getBundles() {
 
     // Fetch only _id, title, and processed fields
     bundles = await collection
-      .find({}, { projection: { _id: 1, title: 1, processed: 1 } })
+      .find({}, { projection: { _id: 1, guestName: 1, company: 1, topic: 1, processed: 1 } })
       .sort({ created_date: -1 })
       .toArray();
   } catch (error) {

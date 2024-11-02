@@ -29,9 +29,11 @@ async function saveBundle(data) {
 export default async function handler(req, res) {
   // Check for the HTTP method if needed, e.g., if it's a POST or GET request
   if (req.method === 'POST') {
-    const { title, urls, context } = req.body;
+    const { guestName, company, topic, urls, context } = req.body;
     const newBundle = {
-      title,
+      guestName,
+      company,
+      topic,
       urls,
       context,
       processed: false,

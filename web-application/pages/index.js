@@ -1,25 +1,30 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import Layout from '../components/Layout';
-import "bootstrap/dist/css/bootstrap.min.css";
+import Layout from "../components/Layout";
 
 const Home = () => {
   const [bundles, setBundles] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    async function fetchBundles() {
-      try {
-        const response = await fetch("/api/bundles");
-        const data = await response.json();
-        setBundles(data.bundles);
-      } catch (error) {
-        console.error("Error fetching bundles:", error);
-      } finally {
-        setLoading(false);
-      }
+  async function fetchBundles() {
+    try {
+      const response = await fetch("/api/bundles");
+      const data = await response.json();
+      setBundles(data.bundles);
+    } catch (error) {
+      console.error("Error fetching bundles:", error);
+    } finally {
+      setLoading(false);
     }
+  }
+
+  useEffect(() => {
+    // Fetch bundles initially and set up polling
     fetchBundles();
+    const intervalId = setInterval(fetchBundles, 5000); // Poll every 5 seconds
+
+    // Clear interval on component unmount
+    return () => clearInterval(intervalId);
   }, []);
 
   return (
@@ -30,7 +35,7 @@ const Home = () => {
       </h5>
 
       <div className="d-flex justify-content-center">
-        <div className="w-100" style={{ maxWidth: "600px" }}>
+        <div className="w-100" style={{ maxWidth: "800px" }}>
           <div className="d-flex justify-content-end mb-4">
             <Link href="/create-research-bundle" className="btn btn-primary" passHref>
               + Create New Research Bundle
@@ -50,7 +55,7 @@ const Home = () => {
                   passHref
                   className="list-group-item list-group-item-action mb-3 shadow-sm rounded border-0 p-3 d-flex justify-content-between align-items-center"
                 >
-                  <div className="fw-bold">{bundle.title}</div>
+                  <div className="fw-bold">{bundle.guestName} from {bundle.company} - {bundle.topic}</div>
                   <span
                     className={`badge ${
                       bundle.processed ? "bg-success" : "bg-warning text-dark"
@@ -67,7 +72,6 @@ const Home = () => {
     </div>
   );
 }
-
 
 export default function Index() {
   return (
