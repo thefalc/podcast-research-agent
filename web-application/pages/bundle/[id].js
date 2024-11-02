@@ -36,6 +36,8 @@ const BundleDetailsPage = () => {
       <h1 className="text-center mb-4">Research Bundle Details</h1>
 
       <div className="card shadow-sm p-4">
+      <div className="mb-2"><strong>Guest:</strong> {bundle.guestName}</div>
+      <div className="mb-2"><strong>Company:</strong> {bundle.company}</div>
         <div className="mb-2"><strong>Topic:</strong> {bundle.topic}</div>
         <div className="mb-2"><strong>Processed:</strong> {bundle.processed ? "Yes" : "No"}</div>
         <div className="mb-2"><strong>Created Date:</strong> {new Date(bundle.created_date).toLocaleString()}</div>
