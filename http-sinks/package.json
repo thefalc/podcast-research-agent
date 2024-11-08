@@ -1,14 +1,29 @@
 {
   "name": "http-sinks",
-  "version": "1.0.0",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
   "dependencies": {
     "@confluentinc/kafka-javascript": "^0.3.0",
     "@langchain/community": "^0.3.11",
-    "@langchain/core": "^0.3.16",
+    "@langchain/core": "^0.3.17",
     "axios": "^1.7.7",
-    "body-parser": "^1.20.3",
     "dotenv": "^16.4.5",
-    "express": "^4.21.1",
-    "mongodb": "^6.10.0"
+    "mongodb": "^6.10.0",
+    "mp3-cutter": "^1.0.6",
+    "next": "15.0.2",
+    "react": "19.0.0-rc-02c0e824-20241028",
+    "react-dom": "19.0.0-rc-02c0e824-20241028",
+    "uuidv4": "^6.2.13",
+    "xml2js": "^0.6.2"
+  },
+  "devDependencies": {
+    "eslint": "^8",
+    "eslint-config-next": "15.0.2"
   }
 }

@@ -1,12 +1,7 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-client.properties
-
-files/
-
 # dependencies
 /node_modules
-node_modules/
 /.pnp
 .pnp.*
 .yarn/*
@@ -20,12 +15,10 @@ node_modules/
 
 # next.js
 /.next/
-.next/
 /out/
 
 # production
 /build
-build/
 
 # misc
 .DS_Store

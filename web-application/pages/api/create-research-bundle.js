@@ -2,7 +2,7 @@ const { MongoClient } = require("mongodb");
 
 require('dotenv').config();
 
-const uri = process.env.MONGODB_URI;//`mongodb+srv://${process.env.MONGODB_DB_USER}:${process.env.MONGODB_DB_PWD}@experiments-cluster.fvvtm.mongodb.net/?retryWrites=true&w=majority&appName=experiments-cluster`;
+const uri = process.env.MONGODB_URI;
 const client = new MongoClient(uri);
 
 async function saveBundle(data) {

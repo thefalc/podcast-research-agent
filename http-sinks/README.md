@@ -1,7 +1,8 @@
 # Podcast Research Agent HTTP Sink APIs
 
-This folder contains a simple express app that supports two endpoints, **/process-urls**
-and **/generate-research-brief**.
+This folder contains a NextJS app that supports two API endpoints, **/process-urls**
+and **/generate-research-brief**. These are called by Kafka as sink connectors to build the
+research brief behind the scenes.
 
 ## Processing URLs
 
@@ -35,5 +36,5 @@ From the your terminal, navigate to the **/http-sinks** directory and enter the 
 
 ```shell
 npm install
-node app.js
+npm run dev
 ```

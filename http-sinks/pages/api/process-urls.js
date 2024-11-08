@@ -1,27 +1,12 @@
 const axios = require("axios");
 const { RecursiveCharacterTextSplitter } = require("@langchain/textsplitters");
 const { OpenAIEmbeddings, ChatOpenAI } = require("@langchain/openai");
-const { saveTextChunks } = require("./util/save-text-chunks");
+const { saveTextChunks } = require("../../util/save-text-chunks");
+const { processPodcastURL } = require("../../util/extract-transcripts-from-podcast");
 const dotenv = require('dotenv');
-const express = require('express');
-
-const router = express.Router();
 
 // Load environment variables from .env file
 dotenv.config();
-
-// API endpoint called by Confluent
-router.post('/', async (req, res) => {
-  console.log(req.body);
-  await handler(req, res);
-});
-
-// For local testing
-router.get('/', async (req, res) => {
-  await handler(req, res);
-});
-
-module.exports = router;
 
 // Used to help with parsing content from websites
 const llm = new ChatOpenAI({
@@ -34,6 +19,19 @@ const embeddings = new OpenAIEmbeddings({
   modelName: "text-embedding-ada-002"
 });
 
+async function getContentChunks(contentArray) {
+  const splitter = new RecursiveCharacterTextSplitter({ chunkSize: 500, chunkOverlap: 50 });
+  let chunks = await splitter.createDocuments(contentArray);
+
+  // Generate embeddings for each of the text chunks
+  for(let i = 0; i < chunks.length; i++) {
+    const embedding = await embeddings.embedQuery(chunks[i].pageContent);
+    chunks[i].embedding = embedding;
+  }
+  
+  return chunks;
+}
+
 // Processors for different URL types
 async function processTextURL(url) {
   try {
@@ -41,16 +39,8 @@ async function processTextURL(url) {
     const text = data.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
 
     const content = await extractOrSummarizeContent(text);
-    const splitter = new RecursiveCharacterTextSplitter({ chunkSize: 500, chunkOverlap: 50 });
-    const chunks = await splitter.createDocuments([content]);
 
-    // Generate embeddings for each of the text chunks
-    for(let i = 0; i < chunks.length; i++) {
-      const embedding = await embeddings.embedQuery(chunks[i].pageContent);
-      chunks[i].embedding = embedding;
-    }
-
-    return chunks;
+    return [content];
   } catch (error) {
     console.error(`Error fetching the URL: ${error}`);
   }
@@ -76,31 +66,21 @@ async function extractOrSummarizeContent(text) {
   }
 }
 
-async function processYoutubeURL(url) {
-  // TODO
-  return [];
-}
-
-async function processPodcastURL(url) {
-  // TODO
-  return [];
-}
-
 // Goes through each URL and extracts text and chunks for the content associated with the URL
-async function processUrls(urls) {
+async function processUrls(bundleId, urls) {
   let urlToChunks = {};
   for(let i = 0; i < urls.length; i++) {
     let url = urls[i];
     console.log(i + " " + url);
     try {
-      let chunks;
-      if (url.includes('youtube.com') || url.includes('youtu.be')) {
-        chunks = await processYoutubeURL(url);
-      } else if (url.includes('podcasts.apple.com')) {
-        chunks = await processPodcastURL(url);
+      let content;
+      if (url.includes('podcasts.apple.com')) {
+        content = await processPodcastURL(bundleId, url);
       } else {
-        chunks = await processTextURL(url);
+        content = await processTextURL(url);
       }
+
+      const chunks = await getContentChunks(content);
       
       // Save the chunks associated with this url
       urlToChunks[url] = chunks;
@@ -116,7 +96,9 @@ async function processUrls(urls) {
 
 // Extracts text from all provided URLs and writes chunked text to a Kafka topic
 async function processResearchBundle(bundleId, urls) {
-  let urlToChunks = await processUrls(urls);
+  let urlToChunks = await processUrls(bundleId, urls);
+
+  // console.log(urlToChunks);
 
   for (const url in urlToChunks) {
     let documents = urlToChunks[url];
@@ -138,21 +120,24 @@ async function processResearchBundle(bundleId, urls) {
   }
 }
 
-async function handler(req, res) {
+export default async function handler(req, res) {
   console.log('handler called');
   // Check for the HTTP method if needed, e.g., if it's a POST or GET request
   if (req.method === 'POST') {
-    let body = req.body;
+    let body = JSON.parse(req.body);
 
-    // console.dir(req);
     console.log(body);
 
-    if (body.hasOwnProperty("fullDocument")) {
-      const urls = body.fullDocument.urls;
-      const bundleId = body.fullDocument._id["$oid"];
-    
-      processResearchBundle(bundleId, urls);
-    }    
+    for(let i = 0; i < body.length; i++) {
+      let message = body[i];
+      if ("fullDocument" in message) {
+        const urls = message.fullDocument.urls;
+        let idValueAsObject = JSON.parse(message.fullDocument._id);
+        const bundleId = idValueAsObject["$oid"];
+
+        processResearchBundle(bundleId, urls);
+      }    
+    }
 
     // Return a JSON response with ok: true
     res.status(200).json({ ok: true });
@@ -160,16 +145,16 @@ async function handler(req, res) {
     let body = {
         clusterTime: 1730311795000,
         fullDocument: {
-            urls: ["https://www.skyflow.com/post/cfpb-finalized-rule-1033-to-protect-data-privacy-what-to-know"],
+            urls: ["https://podcasts.apple.com/us/podcast/deep-dive-into-inference-optimization-for-llms-with/id1699385780?i=1000675820505"],
             context: "ertewrt",
-            _id: { "$oid": "6724f91a1d41094dff56dcaf" },
+            _id: { "$oid": "672bff8bcf5c17083e148372" },
             created_date: 1730311794080,
             topic: "CFPB Finalized Rule 1033",
             guestName: "Chih-Hsuan Wu",
             company: "Skyflow"
         },
         ns: { coll: "research_bundles", db: "podpre_ai" },
-        documentKey: { _id: { "$oid": "6724f91a1d41094dff56dcaf" } },
+        documentKey: { _id: { "$oid": "672bff8bcf5c17083e148372" } },
         operationType: "insert",
         wallTime: 1730311795085,
         _id: {
