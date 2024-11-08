@@ -139,6 +139,7 @@ async function updateResearchBundle(bundleId, researchBriefText) {
 
 async function buildResearchBrief(bundleId) {
   console.log("waiting to process the bundle");
+  // Forced delay to make sure all data is available to generate the research bundle
   await wait(delay);
 
   console.log(bundleId);
@@ -153,7 +154,7 @@ async function buildResearchBrief(bundleId) {
   console.log(flattenedQuestions);
 
   // Don't re-processed a brief
-  if (true || (researchBundle !== null && !researchBundle.processed)) {
+  if (researchBundle !== null && !researchBundle.processed) {
     let relevantChunks = await getRelevantChunks(bundleId, researchBundle.context);
     console.log("relevant chunks");
     console.log(relevantChunks);
@@ -213,7 +214,6 @@ export default async function handler(req, res) {
   // Check for the HTTP method if needed, e.g., if it's a POST or GET request
   if (req.method === 'POST') {
     let body = JSON.parse(req.body);
-
     console.log(body);
 
     for(let i = 0; i < body.length; i++) {
@@ -226,13 +226,6 @@ export default async function handler(req, res) {
     }
 
     // Return a JSON response with ok: true
-    res.status(200).json({ ok: true });
-  } else if (req.method === 'GET') { // TEST DATA
-    const bundleId = '672bff8bcf5c17083e148372';
-
-    console.log(bundleId);
-    buildResearchBrief(bundleId);
-
     res.status(200).json({ ok: true });
   } else {
     // Handle other HTTP methods, e.g., if a GET request is made instead of POST

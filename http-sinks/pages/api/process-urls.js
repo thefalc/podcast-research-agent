@@ -98,8 +98,6 @@ async function processUrls(bundleId, urls) {
 async function processResearchBundle(bundleId, urls) {
   let urlToChunks = await processUrls(bundleId, urls);
 
-  // console.log(urlToChunks);
-
   for (const url in urlToChunks) {
     let documents = urlToChunks[url];
     let textChunks = [];
@@ -136,40 +134,10 @@ export default async function handler(req, res) {
         const bundleId = idValueAsObject["$oid"];
 
         processResearchBundle(bundleId, urls);
-      }    
+      }
     }
 
     // Return a JSON response with ok: true
-    res.status(200).json({ ok: true });
-  } else if (req.method === 'GET') { // TEST DATA
-    let body = {
-        clusterTime: 1730311795000,
-        fullDocument: {
-            urls: ["https://podcasts.apple.com/us/podcast/deep-dive-into-inference-optimization-for-llms-with/id1699385780?i=1000675820505"],
-            context: "ertewrt",
-            _id: { "$oid": "672bff8bcf5c17083e148372" },
-            created_date: 1730311794080,
-            topic: "CFPB Finalized Rule 1033",
-            guestName: "Chih-Hsuan Wu",
-            company: "Skyflow"
-        },
-        ns: { coll: "research_bundles", db: "podpre_ai" },
-        documentKey: { _id: { "$oid": "672bff8bcf5c17083e148372" } },
-        operationType: "insert",
-        wallTime: 1730311795085,
-        _id: {
-            _data: "82672276730000000F2B042C0100296E5A10044B0F4371CE04414B90B99B2154132766463C6F7065726174696F6E54797065003C696E736572740046646F63756D656E744B65790046645F6964006467227672CBBF3FC15CB7F73F000004"
-        }
-    };
-
-    const urls = body.fullDocument.urls;
-    const bundleId = body.fullDocument._id["$oid"];
-
-    console.log(urls);
-    console.log(bundleId);
-
-    processResearchBundle(bundleId, urls);
-
     res.status(200).json({ ok: true });
   } else {
     // Handle other HTTP methods, e.g., if a GET request is made instead of POST
