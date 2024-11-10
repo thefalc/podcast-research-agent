@@ -62,36 +62,41 @@ async function getExistingResearchQuestions(bundleId) {
 }
 
 async function getRelevantChunks(bundleId, searchString) {
+  // TODO: try using GPT to re-write the query based on the context, topic, guest name, and company
+
   const searchEmbedding = await embeddings.embedQuery(searchString);
   const client = new MongoClient(uri);
 
   try {
     await client.connect();
-    // set namespace
+
     const database = client.db("podpre_ai");
     const coll = database.collection("text_embeddings");
 
-    // define pipeline
+    // Define pipeline
     const agg = [
         {
           "$vectorSearch": {
             "index": "vector_index",
-            // "filter": { "bundleId": { "$eq": bundleId } }, FIX THIS
+            "filter": { "bundleId": { "$eq": bundleId } },
             "path": "embedding",
             "queryVector": searchEmbedding,
             "numCandidates": 150,
             "limit": 15
           }
         }, {
-          '$project': {
-            '_id': 0, 
-            'text': 1,
-            'score': {
-              '$meta': 'vectorSearchScore'
+          "$project": {
+            "_id": 0, 
+            "text": 1,
+            "bundleId": 1,
+            "score": {
+              "$meta": "vectorSearchScore"
             }
           }
         }
       ];
+
+    // console.log(agg);
 
     // Execute search
     const result = await coll.aggregate(agg).toArray();
@@ -140,21 +145,20 @@ async function updateResearchBundle(bundleId, researchBriefText) {
 async function buildResearchBrief(bundleId) {
   console.log("waiting to process the bundle");
   // Forced delay to make sure all data is available to generate the research bundle
-  await wait(delay);
+  // await wait(delay);
 
   console.log(bundleId);
   let researchBundle = await getBundle(bundleId);
   console.log(researchBundle);
 
-  let existingQuestions = await getExistingResearchQuestions(bundleId);
-  const flattenedQuestions = existingQuestions
-    .map(item => item.questions) // Extract the questions property from each item
-    .join('\n'); // Join all question strings with a single newline character
-
-  console.log(flattenedQuestions);
-
   // Don't re-processed a brief
-  if (researchBundle !== null && !researchBundle.processed) {
+  if (true || (researchBundle !== null && !researchBundle.processed)) {
+    let existingQuestions = await getExistingResearchQuestions(bundleId);
+    const flattenedQuestions = existingQuestions
+      .map(item => item.questions) // Extract the questions property from each item
+      .join('\n'); // Join all question strings with a single newline character
+    console.log(flattenedQuestions);
+
     let relevantChunks = await getRelevantChunks(bundleId, researchBundle.context);
     console.log("relevant chunks");
     console.log(relevantChunks);
@@ -211,6 +215,7 @@ async function buildResearchBrief(bundleId) {
 }
 
 export default async function handler(req, res) {
+  console.log("generate research brief");
   // Check for the HTTP method if needed, e.g., if it's a POST or GET request
   if (req.method === 'POST') {
     let body = JSON.parse(req.body);
@@ -220,7 +225,6 @@ export default async function handler(req, res) {
       if ("bundleId" in body[i]) {
         let bundleId = body[i].bundleId;
 
-        
         buildResearchBrief(bundleId);
       }
     }

@@ -197,17 +197,22 @@ function extractAndFormatTitle(url) {
     return null; // Return null if the title part isn't found
   }
   
-  // Extract the title part and replace dashes with spaces, then convert to lowercase
-  const kebabTitle = match[1];
-  const formattedTitle = kebabTitle.replace(/-/g, ' ').toLowerCase();
-  
-  return formattedTitle;
+  return match[1];
 }
 
 // Extracts the Apple podcast ID out of the URL
 function extractPodcastId(url) {
   const match = url.match(/\/id(\d+)\b/);
   return match ? match[1] : null;
+}
+
+function getSlug(title) {
+  return title
+    .toLowerCase() // Convert to lowercase
+    .trim() // Remove whitespace from both ends
+    .replace(/[^a-z0-9 ]/g, '') // Remove special characters
+    .replace(/\s+/g, '-') // Replace spaces with a single hyphen
+    .replace(/-+/g, '-'); // Ensure no multiple consecutive hyphens
 }
 
 async function extractAndSaveQuestions(bundleId, transcriptions) {
@@ -275,13 +280,14 @@ module.exports = {
       const episodes = rssData.rss.channel[0].item; // Access all items (episodes) in the feed
 
       // Find the matching episode by title, have to transform title to match the URL-based title
-      const matchingEpisode = episodes.find(episode => 
-        episode.title[0].replace(/[^a-z0-9 ]/gi, '').toLowerCase().includes(titleToMatch)
+      const matchingEpisode = episodes.find(episode => {
+          return getSlug(episode.title[0]).includes(titleToMatch);
+        }
       );
 
       if (!matchingEpisode) {
         console.log(`No episode found with title containing "${titleToMatch}"`);
-        return;
+        return [];
       }
 
       // Extract the MP3 URL from the enclosure tag

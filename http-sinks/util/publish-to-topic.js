@@ -18,10 +18,10 @@ function readConfig(fileName) {
 }
 
 module.exports = {
-  // Saves the text chunks, bundle IDs, and URLs to a Kafka topic
-  saveTextChunks: async function(textChunks) {
-    console.log('saveTextChunks');
-    console.log(textChunks);
+  // Saves the data object to a Kafka topic
+  publishToTopic: async function(topic, data) {
+    console.log('writeToTopic');
+    console.log(data);
 
     // Create a new producer instance
     const producer = new Kafka().producer(config);
@@ -30,7 +30,7 @@ module.exports = {
     await producer.connect();
 
     // Convert the text chunks array into an array that can be sent to Kafka
-    const messages = textChunks.map(item => ({ value: JSON.stringify(item) }));
+    const messages = data.map(item => ({ value: JSON.stringify(item) }));
 
     // Send a single message
     const produceRecord = await producer.send({

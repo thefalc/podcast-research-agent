@@ -1,12 +1,15 @@
 const axios = require("axios");
 const { RecursiveCharacterTextSplitter } = require("@langchain/textsplitters");
 const { OpenAIEmbeddings, ChatOpenAI } = require("@langchain/openai");
-const { saveTextChunks } = require("../../util/save-text-chunks");
+const { publishToTopic } = require("../../util/publish-to-topic");
 const { processPodcastURL } = require("../../util/extract-transcripts-from-podcast");
 const dotenv = require('dotenv');
 
 // Load environment variables from .env file
 dotenv.config();
+
+const TEXT_CHUNKS_TOPIC = "podprep-text-chunks-1";
+const RESEARCH_BUNDLE_PROCESSED = "podprep-research-request-complete-1";
 
 // Used to help with parsing content from websites
 const llm = new ChatOpenAI({
@@ -80,11 +83,14 @@ async function processUrls(bundleId, urls) {
         content = await processTextURL(url);
       }
 
-      const chunks = await getContentChunks(content);
-      
-      // Save the chunks associated with this url
-      urlToChunks[url] = chunks;
+      // console.log('content ' + content);
 
+      if (content.length > 0) {
+        const chunks = await getContentChunks(content);
+      
+        // Save the chunks associated with this url
+        urlToChunks[url] = chunks;
+      }
     } catch (error) {
       console.error(`Error processing URL: ${url}`, error);
       return { url, error: error.message };
@@ -99,12 +105,15 @@ async function processResearchBundle(bundleId, urls) {
   let urlToChunks = await processUrls(bundleId, urls);
 
   for (const url in urlToChunks) {
+    console.log(url);
     let documents = urlToChunks[url];
     let textChunks = [];
 
     // Save each chunk from the URL and associate with the bundle ID
     for(let i = 0; i < documents.length; i++) {
       let text = documents[i].pageContent;
+
+      // console.log('text: ' + text);
   
       textChunks.push({
         bundleId: bundleId,
@@ -114,8 +123,14 @@ async function processResearchBundle(bundleId, urls) {
       });
     }
 
-    saveTextChunks(textChunks);
+    // console.log(textChunks);
+
+    // Write chunks to the topic
+    publishToTopic(TEXT_CHUNKS_TOPIC, textChunks);
   }
+
+  // Everything is complete, write event
+  publishToTopic(RESEARCH_BUNDLE_PROCESSED, [ { bundleId } ]);
 }
 
 export default async function handler(req, res) {
