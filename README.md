@@ -11,6 +11,5 @@ and a MongoDB application database.
 Kafka and Flink, running on Confluent Cloud, are used to move data around between services. The web
 application doesn't know anything about LLMs, Kafka, or Flink.
 
-The **http-sinks** are API endpoints called by Confluent to consume messages from Kafka topics. These
-APIs serve as the data engineering pipeline to process URLs and convert the data into embeddings
-to be used ot genreate a podcast research brief.
+The **research-agent** are API endpoints called by Confluent to consume messages from Kafka topics.
+These APIs serve as agents for mining the research source material and generating a podcast brief.

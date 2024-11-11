@@ -14,11 +14,11 @@ All of this data is written to a Kafka topic to be sinked with MongoDB for vecto
 
 ## Generate research brief
 
-The **/generate-research-brief**, is called by Kafka once the vector data for a research bundle
-is saved. This API endpoint uses all the data about the research bundle to create a prompt with
-relevant context to generate the research brief.
+The **/generate-research-brief**, is called by Kafka once the vector data and mined questions for a
+research bundle are saved. This API endpoint uses all the data about the research bundle to 
+generate the research brief.
 
-The research brief is saved to MongoDB and will now be available in the web application.
+The research brief is saved to MongoDB and is then available in the web application.
 
 ## Configuring the application
 
@@ -32,7 +32,7 @@ As well as a **client.properties** file that contains properties to connect to C
 
 ## Running the application
 
-From the your terminal, navigate to the **/http-sinks** directory and enter the following command:
+From the your terminal, navigate to the **/research-agent** directory and enter the following command:
 
 ```shell
 npm install
