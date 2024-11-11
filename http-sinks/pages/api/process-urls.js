@@ -1,15 +1,12 @@
 const axios = require("axios");
 const { RecursiveCharacterTextSplitter } = require("@langchain/textsplitters");
 const { OpenAIEmbeddings, ChatOpenAI } = require("@langchain/openai");
-const { publishToTopic } = require("../../util/publish-to-topic");
+const { publishToTopic, TEXT_CHUNKS_TOPIC, FULL_TEXT_TOPIC } = require("../../util/publish-to-topic");
 const { processPodcastURL } = require("../../util/extract-transcripts-from-podcast");
 const dotenv = require('dotenv');
 
 // Load environment variables from .env file
 dotenv.config();
-
-const TEXT_CHUNKS_TOPIC = "podprep-text-chunks-1";
-const RESEARCH_BUNDLE_PROCESSED = "podprep-research-request-complete-1";
 
 // Used to help with parsing content from websites
 const llm = new ChatOpenAI({
@@ -43,7 +40,7 @@ async function processTextURL(url) {
 
     const content = await extractOrSummarizeContent(text);
 
-    return [content];
+    return [ content ];
   } catch (error) {
     console.error(`Error fetching the URL: ${error}`);
   }
@@ -76,17 +73,23 @@ async function processUrls(bundleId, urls) {
     let url = urls[i];
     console.log(i + " " + url);
     try {
-      let content;
+      let contentArray;
       if (url.includes('podcasts.apple.com')) {
-        content = await processPodcastURL(bundleId, url);
+        contentArray = await processPodcastURL(bundleId, url);
       } else {
-        content = await processTextURL(url);
+        contentArray = await processTextURL(url);
       }
 
-      // console.log('content ' + content);
+      console.log('content ' + contentArray);
 
-      if (content.length > 0) {
-        const chunks = await getContentChunks(content);
+      if (contentArray.length > 0) {
+        // Publish the full text to a topic
+        contentArray.forEach(content => {
+          publishToTopic(FULL_TEXT_TOPIC, [ { url, bundleId, content } ]);
+        });
+       
+        // Chunk the content
+        const chunks = await getContentChunks(contentArray);
       
         // Save the chunks associated with this url
         urlToChunks[url] = chunks;
@@ -123,14 +126,11 @@ async function processResearchBundle(bundleId, urls) {
       });
     }
 
-    // console.log(textChunks);
+    console.log(textChunks);
 
     // Write chunks to the topic
     publishToTopic(TEXT_CHUNKS_TOPIC, textChunks);
   }
-
-  // Everything is complete, write event
-  publishToTopic(RESEARCH_BUNDLE_PROCESSED, [ { bundleId } ]);
 }
 
 export default async function handler(req, res) {

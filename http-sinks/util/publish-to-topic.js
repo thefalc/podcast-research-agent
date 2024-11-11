@@ -1,6 +1,10 @@
 const { Kafka } = require("@confluentinc/kafka-javascript").KafkaJS;
 const fs = require('fs');
 
+const TEXT_CHUNKS_TOPIC = "podprep-text-chunks-1";
+const RESEARCH_BUNDLE_PROCESSED = "podprep-research-request-complete-1";
+const FULL_TEXT_TOPIC = "podprep-full-text-1";
+
 // Configuration for for Kafka
 const config = readConfig(process.cwd() + "/client.properties");
 const topic = "podprep-text-chunks-1";
@@ -18,6 +22,11 @@ function readConfig(fileName) {
 }
 
 module.exports = {
+  // Topic constants
+  TEXT_CHUNKS_TOPIC,
+  RESEARCH_BUNDLE_PROCESSED,
+  FULL_TEXT_TOPIC,
+
   // Saves the data object to a Kafka topic
   publishToTopic: async function(topic, data) {
     console.log('writeToTopic');
