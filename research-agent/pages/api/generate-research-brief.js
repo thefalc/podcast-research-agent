@@ -183,7 +183,7 @@ async function buildResearchBrief(bundleId) {
   console.log(researchBundle);
 
   // Don't re-processed a brief
-  if (true || (researchBundle !== null && !researchBundle.processed)) {
+  if (researchBundle !== null && !researchBundle.processed) {
     let existingQuestions = await getExistingResearchQuestions(bundleId);
     const flattenedQuestions = existingQuestions
       .map(item => item.questions) // Extract the questions property from each item
