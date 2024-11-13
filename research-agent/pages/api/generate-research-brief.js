@@ -80,7 +80,7 @@ async function getSearchString(researchBundle) {
       Create a natural language search query given the data available.
     `;
 
-    const systemPrompt = `You are an expert in research for a engineering podcast. Using the
+    const systemPrompt = `You are an expert in research for an engineering podcast. Using the
       guest name, company, topic, and context, create the best possible query to search a vector
       database for relevant data mined from blog posts and existing podcasts.`;
 
@@ -130,8 +130,6 @@ async function getRelevantChunks(bundleId, researchBundle) {
           }
         }
       ];
-
-    // console.log(agg);
 
     // Execute search
     const result = await coll.aggregate(agg).toArray();
