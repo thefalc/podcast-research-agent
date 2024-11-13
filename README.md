@@ -512,6 +512,10 @@ WHERE pmq.url_count_mined = pft.url_count_full;
 The final step to configuring Confluent Cloud is to create another HTTP sink connector that will
 call the `generate-research-brief` API endpoint to build the brief.
 
+<p align="center">
+  <img src="/images/generate-research-bundle-flow.png" />
+</p>
+
 In your Confluent Cloud account.
 
 * Go to your Kafka cluster and click on **Connectors** in the sidebar 
